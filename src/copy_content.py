@@ -5,7 +5,7 @@ from markdown_blocks import markdown_to_blocks, markdown_to_html_node
 
 
 def copy_contents(
-    folder_path_public="./public/", folder_path_static="./static/", level=0
+    folder_path_public="./docs/", folder_path_static="./static/", level=0
 ):
     # Remove old content
     if level == 0:
@@ -47,7 +47,7 @@ def extract_title(markdown):
     pass
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     with open(from_path) as file:
         content = file.read()
@@ -58,12 +58,14 @@ def generate_page(from_path, template_path, dest_path):
         template = file.read()
     template = template.replace("{{ Title }}", title, 1)
     template = template.replace("{{ Content }}", html, 1)
+    template = template.replace('href="/', f'href="{base_path}')
+    template = template.replace('src="/', f'src="{base_path}')
     with open(dest_path, "w") as html_file:
         html_file.write(template)
     pass
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, base_path):
     # Copy Paste to public folder
     if not os.path.isdir(dir_path_content):
         raise Exception(
@@ -76,8 +78,10 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             destination_path = os.path.join(dest_dir_path, content)
             if os.path.isdir(source_path):
                 os.mkdir(destination_path)
-                generate_pages_recursive(source_path, template_path, destination_path)
+                generate_pages_recursive(
+                    source_path, template_path, destination_path, base_path
+                )
             if os.path.isfile(source_path):
                 destination_path = destination_path.replace(".md", ".html")
-                generate_page(source_path, template_path, destination_path)
+                generate_page(source_path, template_path, destination_path, base_path)
     pass

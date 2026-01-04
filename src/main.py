@@ -1,3 +1,5 @@
+import sys
+
 from copy_content import (
     copy_contents,
     generate_pages_recursive,
@@ -5,8 +7,14 @@ from copy_content import (
 
 
 def main():
-    copy_contents()
-    generate_pages_recursive("./content/", "template.html", "./public/")
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = "/"
+    print(basepath)
+
+    copy_contents("./docs/", "./static/")
+    generate_pages_recursive("./content/", "template.html", "./docs/", basepath)
 
 
 if __name__ == "__main__":  # True when run as script, False when imported
